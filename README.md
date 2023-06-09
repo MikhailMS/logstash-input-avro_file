@@ -49,5 +49,7 @@ bundle exec rspec
 
 
 ## Notes:
-1. *Sometimes you can face an issue that some gems are too old - in this case you need to upgrade the gems versions in Gemfile.lock
+1. Known limitations:
+    1. Can only handle complete files: if you append events to file, those won't be processed
+    2. Doesn't save position in the file, so if you restart the Logstash, this input would process file from the start
 2. Interesting, but `filewatcher` gem is not being packed together with this plugin when it gets build (probably missing something), so `filewatcher` gem (and its dependencies) must be manually copied into `LOGSTASH_PATH/vendor/cache`, otherwise you won't be able to install it (only locally, when you prepare-offline-pack it gets sorted nicely)
