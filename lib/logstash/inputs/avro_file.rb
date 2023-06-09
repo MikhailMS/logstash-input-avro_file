@@ -22,7 +22,11 @@ require 'logstash/event'
 # ==== Usage
 #
 # input {
-#   avro_file { avro_file_path => '/path/to/avro/file' }
+#   avro_file { avro_file_path => '/path/to/avro/file.avro' }
+# }
+#
+# input {
+#   avro_file { avro_file_path => '/path/to/avro/*.avro' }
 # }
 #
 
@@ -30,10 +34,13 @@ require 'logstash/event'
 class LogStash::Inputs::AvroFile < LogStash::Inputs::Base
   config_name 'avro_file'
 
-  default :codec, 'plain' # not really using any codecs in this plugin, so plain would do
+  default :codec, 'plain' # not using any codecs in this plugin, so plain would do
 
+  # Specify path to an AVRO file or the directory where AVRO files are located
   config :avro_file_path, validate: :string, required: true
+  # Specify path to AVRO schema
   config :schema_path,    validate: :string
+  # Specify how often to look for new files (in seconds)
   config :scan_interval,  validate: :number, default: 5
 
   def register
@@ -59,15 +66,13 @@ class LogStash::Inputs::AvroFile < LogStash::Inputs::Base
         end
         @processed_files[filename] = 'processed'
       end
+    rescue IOError, EOFError, LogStash::ShutdownSignal
+      # stdin closed or a requested shutdown
+      break
     end
   end
 
   def stop
-    # nothing to do in this case so it is not necessary to define stop
-    # examples of common "stop" tasks:
-    #  * close sockets (unblocking blocking reads/accepts)
-    #  * cleanup temporary files
-    #  * terminate spawned threads
   end
 end
 # rubocop:enable DepartmentName
